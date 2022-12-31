@@ -1,25 +1,55 @@
-import logo from './logo.svg';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
+//import Keycloak from "keycloak-js";
+import { useEffect } from "react";
+/*
+import { ReactKeycloakProvider } from "@react-keycloak/web";
+import Keycloak from "keycloak-js";
 
-function App() {
+const keycloak = new Keycloak();
+const keycloakInit = async () => {
+  try {
+    const authenticated = await keycloak.init({ onLoad: "check-sso" });
+    console.log(authenticated ? "authenticated" : "not authenticated");
+  } catch (err) {
+    console.log("error keycloak init", err);
+  }
+};
+keycloakInit();
+*/
+
+import { AuthProvider, useAuth } from "react-oidc-context";
+const oidcConfig = {
+  authority: "http://localhost:8085/realms/test-realm",
+  client_id: "frontend",
+  redirect_uri: "http://localhost:3002",
+};
+
+function MainComp() {
+  const auth = useAuth();
+  console.log("auth", auth);
+  console.log("auth", auth);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <button onClick={() => auth.signinPopup()}>
+        <p>SignIn</p>
+      </button>
+      <button onClick={() => auth.removeUser()}>
+        <p>SignOut</p>
+      </button>
+      {auth.isAuthenticated ? (
+        <textarea>{auth.user.access_token}</textarea>
+      ) : (
+        <></>
+      )}
     </div>
   );
 }
-
+function App() {
+  return (
+    <AuthProvider {...oidcConfig}>
+      <MainComp />
+    </AuthProvider>
+  );
+}
 export default App;
